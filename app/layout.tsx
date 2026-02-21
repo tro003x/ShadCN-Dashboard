@@ -4,6 +4,7 @@ import "./globals.css";
 
 import Navbar from "@/components/navbar";
 import Sidebar from "@/components/sidebar";
+import { ThemeProvider } from "@/components/Provider/ThemeProvider";
 
 
 const geistSans = Geist({
@@ -27,15 +28,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex`}>
-           <Sidebar/>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange>
+          <Sidebar />
           <main className="flex-1 w-full">
-          <Navbar/>
+            <Navbar />
             <div className="px-4">{children}</div>
           </main>
-        
+        </ThemeProvider>
+
       </body>
     </html>
   );
