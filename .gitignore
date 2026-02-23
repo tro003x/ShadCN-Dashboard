@@ -39,3 +39,29 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Private keys and certificates
+*.key
+*.p12
+*.pfx
+*.crt
+
+# IDE credentials
+.idea/
+*.suo
+*.user
+
+# Sensitive config files
+secrets.json
+**/secrets/
+
+# npm/yarn tokens
+.npmrc
+
+# Database files
+*.sqlite
+*.db
+
+# AWS/Cloud credentials
+.aws/
+.gcloud/

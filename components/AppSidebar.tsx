@@ -19,7 +19,7 @@ const items = [
 const AppSidebar = () => {
     return (
         <Sidebar collapsible="icon" variant="floating">
-            <SidebarHeader>
+            <SidebarHeader className="py-4">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild>
