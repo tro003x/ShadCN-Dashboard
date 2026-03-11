@@ -1,0 +1,1077 @@
+{
+  "info": {
+    "name": "Hono Radon API",
+    "description": "Complete API collection for the Hono Radon cybersecurity reconnaissance platform",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8787",
+      "type": "string",
+      "description": "Base URL for the API"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string",
+      "description": "JWT token for authentication"
+    },
+    {
+      "key": "api_token",
+      "value": "",
+      "type": "string",
+      "description": "API token for authentication"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Info",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Check API health status"
+          }
+        },
+        {
+          "name": "Root (Forbidden)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Root endpoint - returns 403 Forbidden"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success) {",
+                  "        console.log('User registered successfully');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"securepassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Register a new user account"
+          }
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data.token) {",
+                  "        pm.collectionVariables.set('jwt_token', response.data.token);",
+                  "        console.log('JWT token saved:', response.data.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"securepassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login and receive JWT token"
+          }
+        },
+        {
+          "name": "Get User Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "profile"]
+            },
+            "description": "Get current user profile (requires authentication)"
+          }
+        },
+        {
+          "name": "Create API Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data.token) {",
+                  "        pm.collectionVariables.set('api_token', response.data.token);",
+                  "        console.log('API token saved:', response.data.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My API Token\",\n  \"expires_at\": \"2025-12-31T23:59:59Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/tokens",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "tokens"]
+            },
+            "description": "Create a new API token"
+          }
+        },
+        {
+          "name": "List API Tokens",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/tokens",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "tokens"]
+            },
+            "description": "List all API tokens for current user"
+          }
+        },
+        {
+          "name": "Revoke API Token",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/tokens/:tokenId",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "tokens", ":tokenId"],
+              "variable": [
+                {
+                  "key": "tokenId",
+                  "value": "1",
+                  "description": "ID of the token to revoke"
+                }
+              ]
+            },
+            "description": "Revoke a specific API token"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "Logout and invalidate current session"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Domains",
+      "item": [
+        {
+          "name": "Get Domains",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/domains?page=1&limit=10&is_scanned=true&include_stats=true",
+              "host": ["{{base_url}}"],
+              "path": ["api", "domains"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Items per page"
+                },
+                {
+                  "key": "is_scanned",
+                  "value": "true",
+                  "description": "Filter by scan status"
+                },
+                {
+                  "key": "include_stats",
+                  "value": "true",
+                  "description": "Include statistics"
+                },
+                {
+                  "key": "date_from",
+                  "value": "",
+                  "description": "Filter from date",
+                  "disabled": true
+                },
+                {
+                  "key": "date_to",
+                  "value": "",
+                  "description": "Filter to date",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get list of domains with optional filters"
+          }
+        },
+        {
+          "name": "Add Domains (File Upload)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "Text file containing domains (one per line)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/domains",
+              "host": ["{{base_url}}"],
+              "path": ["api", "domains"]
+            },
+            "description": "Upload a text file with domains to add"
+          }
+        },
+        {
+          "name": "Get Domain by ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/domains/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "domains", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Domain ID"
+                }
+              ]
+            },
+            "description": "Get a specific domain by ID"
+          }
+        },
+        {
+          "name": "Update Domain",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"updated-domain.com\",\n  \"is_scanned\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/domains/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "domains", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Domain ID"
+                }
+              ]
+            },
+            "description": "Update a domain"
+          }
+        },
+        {
+          "name": "Delete Domain",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/domains/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "domains", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Domain ID"
+                }
+              ]
+            },
+            "description": "Delete a domain"
+          }
+        },
+        {
+          "name": "Get Domain Stats",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/domains/:id/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "domains", ":id", "stats"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Domain ID"
+                }
+              ]
+            },
+            "description": "Get statistics for a specific domain"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Subdomains",
+      "item": [
+        {
+          "name": "Get Subdomains",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/subdomains?page=1&limit=10&domain=example.com&include_stats=true",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subdomains"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Items per page"
+                },
+                {
+                  "key": "domain",
+                  "value": "example.com",
+                  "description": "Filter by domain name"
+                },
+                {
+                  "key": "include_stats",
+                  "value": "true",
+                  "description": "Include statistics"
+                },
+                {
+                  "key": "date_from",
+                  "value": "",
+                  "description": "Filter from date",
+                  "disabled": true
+                },
+                {
+                  "key": "date_to",
+                  "value": "",
+                  "description": "Filter to date",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get list of subdomains with optional filters"
+          }
+        },
+        {
+          "name": "Add Subdomains (File Upload)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "Text file containing subdomains (one per line)"
+                },
+                {
+                  "key": "domain_id",
+                  "value": "1",
+                  "description": "ID of the parent domain (optional)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/subdomains",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subdomains"]
+            },
+            "description": "Upload a text file with subdomains to add"
+          }
+        },
+        {
+          "name": "Monitor Subdomains",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/subdomains/monitor?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subdomains", "monitor"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Items per page"
+                }
+              ]
+            },
+            "description": "Get active subdomains with probed hosts"
+          }
+        },
+        {
+          "name": "Get Subdomain by ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/subdomains/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subdomains", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Subdomain ID"
+                }
+              ]
+            },
+            "description": "Get a specific subdomain by ID"
+          }
+        },
+        {
+          "name": "Delete Subdomain",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/subdomains/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subdomains", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Subdomain ID"
+                }
+              ]
+            },
+            "description": "Delete a subdomain"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ports",
+      "item": [
+        {
+          "name": "Get Ports",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/ports?page=1&limit=10&ip=192.168.1.1&port=80&subdomain=example.com",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ports"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Items per page"
+                },
+                {
+                  "key": "ip",
+                  "value": "192.168.1.1",
+                  "description": "Filter by IP address"
+                },
+                {
+                  "key": "port",
+                  "value": "80",
+                  "description": "Filter by port number"
+                },
+                {
+                  "key": "subdomain",
+                  "value": "example.com",
+                  "description": "Filter by subdomain"
+                }
+              ]
+            },
+            "description": "Get list of ports with optional filters"
+          }
+        },
+        {
+          "name": "Add Ports (File Upload)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "CSV file with format: host,ip,port,protocol,tls"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ports",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ports"]
+            },
+            "description": "Upload a CSV file with ports data"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Probed Hosts",
+      "item": [
+        {
+          "name": "Get Probed Hosts",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/probed?page=1&limit=10&status_code=200&scheme=https",
+              "host": ["{{base_url}}"],
+              "path": ["api", "probed"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Items per page"
+                },
+                {
+                  "key": "status_code",
+                  "value": "200",
+                  "description": "Filter by HTTP status code"
+                },
+                {
+                  "key": "scheme",
+                  "value": "https",
+                  "description": "Filter by scheme (http/https)"
+                }
+              ]
+            },
+            "description": "Get list of probed hosts with optional filters"
+          }
+        },
+        {
+          "name": "Add Probed Hosts (File Upload)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "JSON file containing probed hosts data"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/probed",
+              "host": ["{{base_url}}"],
+              "path": ["api", "probed"]
+            },
+            "description": "Upload a JSON file with probed hosts data"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vulnerabilities",
+      "item": [
+        {
+          "name": "Get Vulnerabilities",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/vulns?page=1&limit=10&severity=high&port=443",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vulns"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Items per page"
+                },
+                {
+                  "key": "severity",
+                  "value": "high",
+                  "description": "Filter by severity (critical/high/medium/low/info)"
+                },
+                {
+                  "key": "port",
+                  "value": "443",
+                  "description": "Filter by port number"
+                }
+              ]
+            },
+            "description": "Get list of vulnerabilities with optional filters"
+          }
+        },
+        {
+          "name": "Add Vulnerabilities (File Upload)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "JSON file containing vulnerabilities data"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/vulns",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vulns"]
+            },
+            "description": "Upload a JSON file with vulnerabilities data"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics & Stats",
+      "item": [
+        {
+          "name": "Get Overall Stats",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stats"]
+            },
+            "description": "Get overall platform statistics including counts and vulnerability breakdown"
+          }
+        },
+        {
+          "name": "Search All Data",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/search?q=example&type=domain",
+              "host": ["{{base_url}}"],
+              "path": ["api", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "example",
+                  "description": "Search query term"
+                },
+                {
+                  "key": "type",
+                  "value": "domain",
+                  "description": "Search type: domain, subdomain, ip, vulnerability (optional)"
+                }
+              ]
+            },
+            "description": "Search across domains, subdomains, IPs, and vulnerabilities"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-set Authorization header for API token auth",
+          "const apiToken = pm.collectionVariables.get('api_token');",
+          "if (apiToken && pm.request.url.toString().includes('/api/')) {",
+          "    pm.request.headers.add({",
+          "        key: 'Authorization',",
+          "        value: `Bearer ${apiToken}`",
+          "    });",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test script for all requests",
+          "pm.test('Response time is less than 5000ms', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "pm.test('Response has success field', function () {",
+          "    if (pm.response.code !== 404) {",
+          "        const jsonData = pm.response.json();",
+          "        pm.expect(jsonData).to.have.property('success');",
+          "        pm.expect(jsonData).to.have.property('statusCode');",
+          "    }",
+          "});"
+        ]
+      }
+    }
+  ]
+}

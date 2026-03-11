@@ -9,22 +9,24 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
-import { LogOut, Moon, Settings, Sun, User } from 'lucide-react';
-import Link from 'next/link';
-
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { LogOut, Moon, Settings, Sun, User } from "lucide-react";
+import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useTheme } from "next-themes";
 import { SidebarTrigger } from "./ui/sidebar";
 
-
 const Navbar = () => {
-    const {theme, setTheme}= useTheme();
+    const { theme, setTheme } = useTheme();
+
+    const handleLogout = () => {
+        document.cookie = "token=; path=/; max-age=0";
+        window.location.href = "/login";
+    };
+
     return (
-        <nav className='p-4 flex items-center justify-between'>
-            <SidebarTrigger/>
-            <div className='flex items-center gap-4'>
-                <Link href="/">Dashboard</Link>
+        <nav className="p-4 flex items-center justify-between">
+            <SidebarTrigger />
+            <div className="flex items-center gap-4">
                 {/* Theme Menu */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -35,39 +37,42 @@ const Navbar = () => {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setTheme("light")}>
-                            Light
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setTheme("dark")}>
-                            Dark
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setTheme("system")}>
-                            System
-                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
                 {/* User Menu */}
                 <DropdownMenu>
-                    <DropdownMenuTrigger render={<Button variant="outline" />}>
-                        <Avatar>
-                            <AvatarImage src="https://github.com/tro003x.png" />
-                            <AvatarFallback>CN</AvatarFallback>
-                        </Avatar>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="icon" className="rounded-full">
+                            <Avatar className="h-8 w-8">
+                                <AvatarImage src="https://github.com/shadcn.png" />
+                                <AvatarFallback>RD</AvatarFallback>
+                            </Avatar>
+                        </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
+                    <DropdownMenuContent align="end">
                         <DropdownMenuGroup>
                             <DropdownMenuLabel>My Account</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem><User className="h-[1.2 rem] w-[1.2 rem] mr-2" />Profile</DropdownMenuItem>
-                            <DropdownMenuItem><Settings className="h-[1.2 rem] w-[1.2 rem] mr-2" />Settings</DropdownMenuItem>
-                            <DropdownMenuItem variant="destructive"><LogOut className="h-[1.2 rem] w-[1.2 rem] mr-2" />Log Out</DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href="/settings">
+                                    <User className="h-4 w-4 mr-2" />Profile
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href="/settings">
+                                    <Settings className="h-4 w-4 mr-2" />Settings
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem variant="destructive" onClick={handleLogout}>
+                                <LogOut className="h-4 w-4 mr-2" />Log Out
+                            </DropdownMenuItem>
                         </DropdownMenuGroup>
-
                     </DropdownMenuContent>
                 </DropdownMenu>
-
             </div>
-
         </nav>
     );
 };
