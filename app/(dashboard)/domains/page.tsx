@@ -19,6 +19,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Pencil, Trash2, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function DomainsPage() {
   const [page, setPage] = useState(1);
@@ -44,7 +45,11 @@ export default function DomainsPage() {
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => api.delete(`/api/domains/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["domains"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["domains"] });
+      toast.success("Domain deleted.");
+    },
+    onError: () => toast.error("Failed to delete domain."),
   });
 
   const editMutation = useMutation({
@@ -53,7 +58,9 @@ export default function DomainsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["domains"] });
       setEditDomain(null);
+      toast.success("Domain updated.");
     },
+    onError: () => toast.error("Failed to update domain."),
   });
 
   const columns: ColumnDef<Domain>[] = [

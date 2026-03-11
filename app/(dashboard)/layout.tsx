@@ -14,9 +14,9 @@ export default async function DashboardLayout({
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
       <AppSidebar />
-      <main className="flex-1 w-full min-w-0">
+      <main className="flex-1 w-full min-w-0 overflow-x-hidden">
         <Navbar />
-        <div className="px-4 pb-6">{children}</div>
+        <div className="px-3 sm:px-6 pb-8">{children}</div>
       </main>
     </SidebarProvider>
   );

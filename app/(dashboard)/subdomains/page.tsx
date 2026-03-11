@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExternalLink, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 // Monitor columns (include optional probed host fields from API response)
 const monitorColumns: ColumnDef<Subdomain & { url?: string; status_code?: number; title?: string }>[] = [
@@ -88,7 +89,11 @@ export default function SubdomainsPage() {
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => api.delete(`/api/subdomains/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["subdomains"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["subdomains"] });
+      toast.success("Subdomain deleted.");
+    },
+    onError: () => toast.error("Failed to delete subdomain."),
   });
 
   const subdomainColumns: ColumnDef<Subdomain>[] = [

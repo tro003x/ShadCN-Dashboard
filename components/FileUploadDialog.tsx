@@ -14,6 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Upload } from "lucide-react";
+import { toast } from "sonner";
 
 interface FileUploadDialogProps {
   endpoint: string;
@@ -57,6 +58,13 @@ export function FileUploadDialog({
       setOpen(false);
       setFile(null);
       if (fileRef.current) fileRef.current.value = "";
+      toast.success("File imported successfully!");
+    },
+    onError: (err: unknown) => {
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ?? "Upload failed. Please try again.";
+      toast.error(msg);
     },
   });
 

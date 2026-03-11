@@ -19,8 +19,8 @@ const Navbar = () => {
     const { theme, setTheme } = useTheme();
 
     return (
-        <nav className="p-4 flex items-center justify-between">
-            <SidebarTrigger />
+        <nav className="px-3 sm:px-4 py-3 flex items-center justify-between border-b sticky top-0 bg-background/95 backdrop-blur z-10">
+            <SidebarTrigger className="shrink-0" />
             <div className="flex items-center gap-4">
                 {/* Theme Menu */}
                 <DropdownMenu>

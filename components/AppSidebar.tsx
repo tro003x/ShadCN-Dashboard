@@ -21,14 +21,14 @@ const AppSidebar = () => {
     const pathname = usePathname();
 
     return (
-        <Sidebar collapsible="icon" variant="floating">
+        <Sidebar collapsible="offcanvas" variant="sidebar">
             <SidebarHeader className="py-4">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
+                        <SidebarMenuButton size="lg" asChild>
                             <Link href="/dashboard">
-                                <ShieldAlert className="text-red-500" />
-                                <span className="font-bold">Radon</span>
+                                <ShieldAlert className="text-red-500 h-5 w-5" />
+                                <span className="font-bold text-base">Radon</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -63,7 +63,7 @@ const AppSidebar = () => {
                                     <User2 /> Researcher <ChevronUp className="ml-auto" />
                                 </SidebarMenuButton>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
+                            <DropdownMenuContent side="top" align="end">
                                 <DropdownMenuItem asChild>
                                     <Link href="/settings">Settings</Link>
                                 </DropdownMenuItem>

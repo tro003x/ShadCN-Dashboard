@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Trash2, Plus, Copy, LogOut, User, Key } from "lucide-react";
+import { toast } from "sonner";
 
 export default function SettingsPage() {
   const [tokenName, setTokenName] = useState("");
@@ -50,12 +51,18 @@ export default function SettingsPage() {
       queryClient.invalidateQueries({ queryKey: ["api-tokens"] });
       setTokenName("");
       setTokenExpiry("");
+      toast.success("API token generated.");
     },
+    onError: () => toast.error("Failed to generate token."),
   });
 
   const revokeToken = useMutation({
     mutationFn: (id: number) => api.delete(`/auth/tokens/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["api-tokens"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["api-tokens"] });
+      toast.success("Token revoked.");
+    },
+    onError: () => toast.error("Failed to revoke token."),
   });
 
   const copyToClipboard = (token: string, id: number) => {
