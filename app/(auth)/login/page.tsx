@@ -17,6 +17,29 @@ import {
 } from "@/components/ui/card";
 import { ShieldAlert, Eye, EyeOff } from "lucide-react";
 
+type ApiError = {
+  response?: { data?: { message?: string } };
+};
+
+function getLoginErrorInfo(error: unknown): { title: string; hint: string } {
+  const err = error as ApiError;
+  if (!err.response) {
+    return {
+      title: "Cannot connect to the API server (port 8787).",
+      hint:
+        "The backend is not running. Start it with `wrangler dev` inside your Hono API project, then try again.",
+    };
+  }
+  const serverMsg = err.response?.data?.message;
+  if (serverMsg) {
+    return { title: serverMsg, hint: "" };
+  }
+  return {
+    title: "Invalid credentials.",
+    hint: "Double-check your username and password and try again.",
+  };
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ username: "", password: "" });
@@ -91,11 +114,15 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
-            {mutation.isError && (
-              <p className="text-sm text-destructive">
-                Invalid credentials. Please try again.
-              </p>
-            )}
+            {mutation.isError && (() => {
+              const { title, hint } = getLoginErrorInfo(mutation.error);
+              return (
+                <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 space-y-1">
+                  <p className="text-sm font-medium text-destructive">{title}</p>
+                  {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+                </div>
+              );
+            })()}
             <Button
               type="submit"
               className="w-full"

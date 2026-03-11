@@ -100,17 +100,19 @@ export default function SubdomainDetailPage() {
   });
 
   const { data: vulnsData, isLoading: vulnsLoading } = useQuery({
-    queryKey: ["vulns-by-subdomain", id, vulnPage],
+    queryKey: ["vulns-by-subdomain", subdomain?.name, vulnPage],
+    enabled: !!subdomain?.name,
     queryFn: async () => {
-      const res = await api.get(`/api/vulns?page=${vulnPage}&limit=10`);
+      const res = await api.get(`/api/vulns?host=${encodeURIComponent(subdomain!.name)}&page=${vulnPage}&limit=10`);
       return res.data;
     },
   });
 
   const { data: probedData, isLoading: probedLoading } = useQuery({
-    queryKey: ["probed-by-subdomain", id, probedPage],
+    queryKey: ["probed-by-subdomain", subdomain?.name, probedPage],
+    enabled: !!subdomain?.name,
     queryFn: async () => {
-      const res = await api.get(`/api/probed?page=${probedPage}&limit=10`);
+      const res = await api.get(`/api/probed?host=${encodeURIComponent(subdomain!.name)}&page=${probedPage}&limit=10`);
       return res.data;
     },
   });

@@ -9,7 +9,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LogOut, Moon, Settings, Sun, User } from "lucide-react";
+import { Moon, Settings, Sun, User } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useTheme } from "next-themes";
@@ -17,11 +17,6 @@ import { SidebarTrigger } from "./ui/sidebar";
 
 const Navbar = () => {
     const { theme, setTheme } = useTheme();
-
-    const handleLogout = () => {
-        document.cookie = "token=; path=/; max-age=0";
-        window.location.href = "/login";
-    };
 
     return (
         <nav className="p-4 flex items-center justify-between">
@@ -66,9 +61,7 @@ const Navbar = () => {
                                     <Settings className="h-4 w-4 mr-2" />Settings
                                 </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem variant="destructive" onClick={handleLogout}>
-                                <LogOut className="h-4 w-4 mr-2" />Log Out
-                            </DropdownMenuItem>
+
                         </DropdownMenuGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>

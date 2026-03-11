@@ -85,6 +85,14 @@ export default function DomainsPage() {
       ),
     },
     {
+      accessorKey: "subdomains_count",
+      header: "Subdomains",
+      cell: ({ row }) =>
+        row.original.subdomains_count != null
+          ? row.original.subdomains_count.toLocaleString()
+          : "—",
+    },
+    {
       accessorKey: "created_at",
       header: "Added",
       cell: ({ row }) =>

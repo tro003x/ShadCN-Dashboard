@@ -8,7 +8,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/DataTable";
 import { FileUploadDialog } from "@/components/FileUploadDialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 const statusBg = (code: number) => {
   if (code < 300) return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
@@ -51,6 +50,24 @@ const columns: ColumnDef<ProbedHost>[] = [
     header: "Title",
     cell: ({ row }) => row.original.title ?? "—",
   },
+  {
+    accessorKey: "tech",
+    header: "Technologies",
+    cell: ({ row }) => {
+      const tech = row.original.tech;
+      if (!tech || tech.length === 0) return <span className="text-muted-foreground">—</span>;
+      return (
+        <div className="flex flex-wrap gap-1">
+          {tech.slice(0, 3).map((t) => (
+            <span key={t} className="px-1.5 py-0.5 bg-muted text-muted-foreground rounded text-xs">{t}</span>
+          ))}
+          {tech.length > 3 && (
+            <span className="text-xs text-muted-foreground">+{tech.length - 3}</span>
+          )}
+        </div>
+      );
+    },
+  },
 ];
 
 export default function ProbedHostsPage() {
@@ -88,15 +105,20 @@ export default function ProbedHostsPage() {
       <div className="flex flex-wrap gap-3 items-end bg-muted/50 p-4 rounded-lg">
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Status Code</label>
-          <Input
-            placeholder="200"
+          <select
             value={statusCode}
             onChange={(e) => {
               setStatusCode(e.target.value);
               setPage(1);
             }}
-            className="h-9 w-24"
-          />
+            className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring">
+            <option value="">All</option>
+            <option value="200">200</option>
+            <option value="301">301</option>
+            <option value="403">403</option>
+            <option value="404">404</option>
+            <option value="500">500</option>
+          </select>
         </div>
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Scheme</label>

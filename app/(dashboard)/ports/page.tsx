@@ -9,32 +9,7 @@ import { DataTable } from "@/components/DataTable";
 import { FileUploadDialog } from "@/components/FileUploadDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-const columns: ColumnDef<Port>[] = [
-  { accessorKey: "host", header: "Host" },
-  { accessorKey: "ip", header: "IP" },
-  { accessorKey: "port", header: "Port" },
-  { accessorKey: "protocol", header: "Protocol" },
-  {
-    accessorKey: "tls",
-    header: "TLS",
-    cell: ({ row }) => (
-      <span
-        className={`px-2 py-1 rounded-full text-xs font-medium ${
-          row.original.tls
-            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-            : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-        }`}>
-        {row.original.tls ? "TLS" : "Plain"}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "subdomain",
-    header: "Subdomain",
-    cell: ({ row }) => row.original.subdomain ?? "—",
-  },
-];
+import { Copy, Check } from "lucide-react";
 
 export default function PortsPage() {
   const [page, setPage] = useState(1);
@@ -42,6 +17,73 @@ export default function PortsPage() {
   const [portFilter, setPortFilter] = useState("");
   const [subdomainFilter, setSubdomainFilter] = useState("");
   const [applied, setApplied] = useState({ ip: "", port: "", subdomain: "" });
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const copyToClipboard = (text: string, key: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(key);
+    setTimeout(() => setCopied(null), 1500);
+  };
+
+  const columns: ColumnDef<Port>[] = [
+    { accessorKey: "host", header: "Host" },
+    {
+      accessorKey: "ip",
+      header: "IP",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-1">
+          <span>{row.original.ip}</span>
+          <button
+            onClick={() => copyToClipboard(row.original.ip, `ip-${row.original.id}`)}
+            className="p-0.5 rounded hover:bg-muted transition-colors">
+            {copied === `ip-${row.original.id}` ? (
+              <Check className="h-3 w-3 text-green-500" />
+            ) : (
+              <Copy className="h-3 w-3 text-muted-foreground" />
+            )}
+          </button>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "port",
+      header: "Port",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-1">
+          <span>{row.original.port}</span>
+          <button
+            onClick={() => copyToClipboard(String(row.original.port), `port-${row.original.id}`)}
+            className="p-0.5 rounded hover:bg-muted transition-colors">
+            {copied === `port-${row.original.id}` ? (
+              <Check className="h-3 w-3 text-green-500" />
+            ) : (
+              <Copy className="h-3 w-3 text-muted-foreground" />
+            )}
+          </button>
+        </div>
+      ),
+    },
+    { accessorKey: "protocol", header: "Protocol" },
+    {
+      accessorKey: "tls",
+      header: "TLS",
+      cell: ({ row }) => (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-medium ${
+            row.original.tls
+              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+              : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+          }`}>
+          {row.original.tls ? "TLS" : "Plain"}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "subdomain",
+      header: "Subdomain",
+      cell: ({ row }) => row.original.subdomain ?? "—",
+    },
+  ];
 
   const { data, isLoading } = useQuery({
     queryKey: ["ports", page, applied],

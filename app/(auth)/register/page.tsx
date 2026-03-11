@@ -17,6 +17,40 @@ import {
 } from "@/components/ui/card";
 import { ShieldAlert, Eye, EyeOff } from "lucide-react";
 
+type ApiError = {
+  response?: { data?: { message?: string } };
+  code?: string;
+  message?: string;
+};
+
+function getErrorInfo(error: unknown): { title: string; hint: string } {
+  const err = error as ApiError;
+
+  // No response at all → server is offline / unreachable
+  if (!err.response) {
+    return {
+      title: "Cannot connect to the API server (port 8787).",
+      hint:
+        "The backend is not running. Start it with `wrangler dev` (or `npm run dev`) inside your Hono API project, then try again.",
+    };
+  }
+
+  // Server replied with an error message
+  const serverMsg = err.response?.data?.message;
+  if (serverMsg) {
+    return {
+      title: serverMsg,
+      hint: "Check the field highlighted above and correct it before retrying.",
+    };
+  }
+
+  return {
+    title: "Registration failed.",
+    hint:
+      "Common causes: username or email already in use, password too short (min 8 chars), or invalid email format.",
+  };
+}
+
 export default function RegisterPage() {
   const router = useRouter();
   const [form, setForm] = useState({ username: "", email: "", password: "" });
@@ -97,11 +131,15 @@ export default function RegisterPage() {
                 </button>
               </div>
             </div>
-            {mutation.isError && (
-              <p className="text-sm text-destructive">
-                Registration failed. Please try again.
-              </p>
-            )}
+            {mutation.isError && (() => {
+              const { title, hint } = getErrorInfo(mutation.error);
+              return (
+                <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 space-y-1">
+                  <p className="text-sm font-medium text-destructive">{title}</p>
+                  <p className="text-xs text-muted-foreground">{hint}</p>
+                </div>
+              );
+            })()}
             {mutation.isSuccess && (
               <p className="text-sm text-green-600">
                 Account created! Redirecting to login...

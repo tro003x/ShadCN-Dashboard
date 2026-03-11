@@ -20,11 +20,6 @@ const items = [
 const AppSidebar = () => {
     const pathname = usePathname();
 
-    const handleLogout = () => {
-        document.cookie = "token=; path=/; max-age=0";
-        window.location.href = "/login";
-    };
-
     return (
         <Sidebar collapsible="icon" variant="floating">
             <SidebarHeader className="py-4">
@@ -71,9 +66,6 @@ const AppSidebar = () => {
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem asChild>
                                     <Link href="/settings">Settings</Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem variant="destructive" onClick={handleLogout}>
-                                    Logout
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

@@ -1,17 +1,41 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import api from "@/lib/api";
-import { Domain, DomainStats } from "@/lib/types";
+import { Domain, DomainStats, Subdomain } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Globe, Network, Server, Monitor, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Globe, Network, Server, Monitor, ShieldAlert, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/DataTable";
+import { ColumnDef } from "@tanstack/react-table";
+
+const subdomainColumns: ColumnDef<Subdomain>[] = [
+  {
+    accessorKey: "name",
+    header: "Subdomain",
+    cell: ({ row }) => (
+      <Link
+        href={`/subdomains/${row.original.id}`}
+        className="flex items-center gap-1 hover:underline font-medium">
+        {row.original.name}
+        <ExternalLink className="h-3 w-3" />
+      </Link>
+    ),
+  },
+  {
+    accessorKey: "created_at",
+    header: "Added",
+    cell: ({ row }) => new Date(row.getValue("created_at")).toLocaleDateString(),
+  },
+];
 
 export default function DomainDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const [subPage, setSubPage] = useState(1);
 
   const { data: domain, isLoading: domainLoading } = useQuery({
     queryKey: ["domain", id],
@@ -28,6 +52,14 @@ export default function DomainDetailPage() {
         `/api/domains/${id}/stats`
       );
       return res.data.data;
+    },
+  });
+
+  const { data: subdomainsData, isLoading: subdomainsLoading } = useQuery({
+    queryKey: ["domain-subdomains", id, subPage],
+    queryFn: async () => {
+      const res = await api.get(`/api/subdomains?domain_id=${id}&page=${subPage}&limit=10`);
+      return res.data;
     },
   });
 
@@ -135,6 +167,30 @@ export default function DomainDetailPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Subdomains */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Subdomains</CardTitle>
+          <Button asChild variant="ghost" size="sm">
+            <Link href={`/subdomains?domain=${domain.name}`}>
+              View all
+              <ExternalLink className="h-3 w-3 ml-1" />
+            </Link>
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <DataTable
+            columns={subdomainColumns}
+            data={subdomainsData?.data ?? []}
+            total={subdomainsData?.pagination?.total ?? 0}
+            page={subPage}
+            pageSize={10}
+            onPageChange={setSubPage}
+            isLoading={subdomainsLoading}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }

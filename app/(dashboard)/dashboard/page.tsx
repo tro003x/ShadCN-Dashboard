@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Globe, Network, Server, Monitor, ShieldAlert } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/DataTable";
+import { FileUploadDialog } from "@/components/FileUploadDialog";
 import {
   ChartContainer,
   ChartTooltip,
@@ -14,6 +15,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import Link from "next/link";
 
 const severityColors: Record<string, string> = {
   critical: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
@@ -24,7 +26,15 @@ const severityColors: Record<string, string> = {
 };
 
 const vulnColumns: ColumnDef<Vulnerability>[] = [
-  { accessorKey: "name", header: "Name" },
+  {
+    accessorKey: "name",
+    header: "Name",
+    cell: ({ row }) => (
+      <Link href="/vulnerabilities" className="hover:underline font-medium">
+        {row.original.name}
+      </Link>
+    ),
+  },
   { accessorKey: "host", header: "Host" },
   {
     accessorKey: "severity",
@@ -64,7 +74,7 @@ export default function DashboardPage() {
   const { data: vulnsData, isLoading: vulnsLoading } = useQuery({
     queryKey: ["vulns", "recent"],
     queryFn: async () => {
-      const res = await api.get("/api/vulns?page=1&limit=10");
+      const res = await api.get("/api/vulns?page=1&limit=5");
       return res.data;
     },
   });
@@ -141,6 +151,57 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Scan Coverage + Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Domain Scan Coverage</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {(() => {
+              const total = statsData?.domains?.total ?? 0;
+              const scanned = statsData?.domains?.scanned ?? 0;
+              const pct = total > 0 ? Math.round((scanned / total) * 100) : 0;
+              return (
+                <>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Scanned</span>
+                    <span className="font-medium">{scanned} / {total}</span>
+                  </div>
+                  <div className="h-3 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-green-500 rounded-full transition-all"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">{pct}% scanned</p>
+                </>
+              );
+            })()}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-3">
+            <FileUploadDialog
+              endpoint="/api/domains"
+              accept=".txt"
+              queryKey="domains"
+              description="Upload a .txt file with one domain per line."
+            />
+            <FileUploadDialog
+              endpoint="/api/subdomains"
+              accept=".txt"
+              queryKey="subdomains"
+              description="Upload a .txt file with one subdomain per line."
+            />
+          </CardContent>
+        </Card>
       </div>
 
       {/* Charts + Recent Vulns */}

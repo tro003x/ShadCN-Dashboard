@@ -15,8 +15,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useState } from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -26,6 +27,7 @@ interface DataTableProps<TData, TValue> {
   pageSize?: number;
   onPageChange?: (page: number) => void;
   isLoading?: boolean;
+  renderSubRow?: (row: TData) => React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -36,10 +38,39 @@ export function DataTable<TData, TValue>({
   pageSize = 10,
   onPageChange,
   isLoading = false,
+  renderSubRow,
 }: DataTableProps<TData, TValue>) {
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+  const toggle = (id: string) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const expandColumn: ColumnDef<TData, TValue> = {
+    id: "__expand__",
+    header: "",
+    cell: ({ row }) => (
+      <button
+        onClick={() => toggle(row.id)}
+        className="p-1 rounded hover:bg-muted transition-colors">
+        <ChevronDown
+          className={`h-4 w-4 transition-transform ${
+            expanded.has(row.id) ? "rotate-0" : "-rotate-90"
+          }`}
+        />
+      </button>
+    ),
+  };
+
+  const allColumns = renderSubRow ? [expandColumn, ...columns] : columns;
+
   const table = useReactTable({
     data,
-    columns,
+    columns: allColumns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
     pageCount: Math.ceil(total / pageSize),
@@ -80,18 +111,27 @@ export function DataTable<TData, TValue>({
               ))
             ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
+                <>
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                  {renderSubRow && expanded.has(row.id) && (
+                    <TableRow key={`${row.id}-expanded`}>
+                      <TableCell colSpan={allColumns.length} className="p-0">
+                        {renderSubRow(row.original)}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </>
               ))
             ) : (
               <TableRow>
