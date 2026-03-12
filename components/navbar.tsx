@@ -42,7 +42,7 @@ const Navbar = () => {
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" size="icon" className="rounded-full">
                             <Avatar className="h-8 w-8">
-                                <AvatarImage src="https://github.com/shadcn.png" />
+                                <AvatarImage src="https://github.com/tro003x.png" />
                                 <AvatarFallback>RD</AvatarFallback>
                             </Avatar>
                         </Button>
